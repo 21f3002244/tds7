@@ -1,0 +1,40 @@
+name: Cache demo
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  cache-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache dependencies
+        id: cache-step
+        uses: actions/cache@v4
+        with:
+          # This is the folder we pretend holds “dependencies”.
+          # It will be created automatically.
+          path: .cache/deps
+          # Assignment wants this exact key:
+          key: cache-540e929
+
+      - name: prime-cache-540e929
+        run: |
+          echo "Cache hit output: ${{ steps.cache-step.outputs.cache-hit }}"
+          if [ "${{ steps.cache-step.outputs.cache-hit }}" = "true" ]; then
+            echo "Result: cache HIT"
+          else
+            echo "Result: cache MISS"
+          fi
+
+      - name: Fake install dependencies
+        run: |
+          mkdir -p .cache/deps
+          echo "some dependency data" > .cache/deps/info.txt
+          echo "Dependencies prepared."
